@@ -53,6 +53,7 @@ class ServicioRecicladorAceptarFragment : Fragment() {
         val btnAceptar:Button = view.findViewById(R.id.btnAceptar)
         btnAceptar.setOnClickListener {
             atenderServicio()
+
         }
         btnCancelar.setOnClickListener {
             parent!!.fragmentManager?.popBackStackImmediate()
@@ -87,9 +88,9 @@ class ServicioRecicladorAceptarFragment : Fragment() {
                 if(response!=null){
                     if(response.getInt("estado") == 200 ){
                         Prefs.putServicioRecicladorId(SERVICIOID)
+                        Prefs.putString("SERVICIORECICLADOR_FECHA", "")
                         parent!!.cardViewInfo?.visibility = View.INVISIBLE
                         parent!!.childFragmentManager.beginTransaction().replace(R.id.subfragmento, ServicioRecicladorLlegoFragment()).commit()
-
                     }else{
                         AlertaMensaje.mostrarError(activity!!,response.getString("mensaje"))
                     }

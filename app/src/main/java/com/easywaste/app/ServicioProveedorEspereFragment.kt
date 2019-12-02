@@ -15,20 +15,23 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.easywaste.app.Clases.*
-import com.google.android.gms.maps.model.LatLng
 import org.json.JSONObject
 import java.lang.Exception
 
 class ServicioProveedorEspereFragment : Fragment() {
 
-    var ESPERE = true
+    var OK = true
     var btnCancelarServicio:Button?= null
+    var mainActivity:MainActivity?=null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         val view = inflater.inflate(R.layout.servicio_proveedor_espere, container, false)
+        mainActivity = activity as MainActivity
         btnCancelarServicio= view.findViewById<Button>(R.id.btnCancelar)
         btnCancelarServicio?.setOnClickListener {
             val builder = AlertDialog.Builder(activity!!)
@@ -52,10 +55,10 @@ class ServicioProveedorEspereFragment : Fragment() {
         val mainHandler = Handler(Looper.getMainLooper())
         mainHandler.post(object : Runnable {
             override fun run() {
-                if(ESPERE){
+                if(OK){
                     try {
                         buscarServicio()
-                        mainHandler.postDelayed(this, 3000)
+                        mainHandler.postDelayed(this, 5000)
                     }catch (ex:Exception){
 
                     }
@@ -69,7 +72,6 @@ class ServicioProveedorEspereFragment : Fragment() {
 
     fun buscarServicio(){
 
-        val act = activity as MainActivity
 
         val params = HashMap<String,Any>()
         params["servicio_id"] =  Prefs.pullServicioId()
@@ -88,12 +90,12 @@ class ServicioProveedorEspereFragment : Fragment() {
                         if(estado == "Abierto"){
                             btnCancelarServicio?.visibility = View.VISIBLE
                         }else if (estado == "En Camino" || estado == "En Atencion"){
-                            ESPERE = false
-                            act.cambiarFragment(ServicioProveedorEnCaminoFragment())
+                            OK = false
+                            mainActivity?.cambiarFragment(ServicioProveedorEnCaminoFragment())
                             btnCancelarServicio?.visibility = View.GONE
                         }else if(estado == "Finalizado"){
-                            ESPERE = false
-                            act.cambiarFragment(ServicioProveedorFinalizadoFragment())
+                            OK = false
+                            mainActivity?.cambiarFragment(ServicioProveedorFinalizadoFragment())
 
                         }else{
                             Prefs.putServicioId(0)
@@ -104,10 +106,10 @@ class ServicioProveedorEspereFragment : Fragment() {
                     }
 
                     if(Prefs.pullServicioId() == 0 ){
-                        ESPERE = false
+                        OK = false
                         btnCancelarServicio?.visibility = View.GONE
                         Toast.makeText(context,  "Servicio finalizado.", Toast.LENGTH_LONG).show()
-                        act.cambiarFragment(ServicioProveedorRegistrarFragment())
+                        mainActivity?.cambiarFragment(ServicioProveedorRegistrarFragment())
                     }
                 }
 

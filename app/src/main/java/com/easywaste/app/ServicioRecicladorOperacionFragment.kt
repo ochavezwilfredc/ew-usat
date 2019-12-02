@@ -1,6 +1,10 @@
 package com.easywaste.app
 
+import android.content.Context
 import android.graphics.Color
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import androidx.fragment.app.Fragment
 import android.os.Bundle
 import android.util.Log
@@ -9,7 +13,6 @@ import android.view.LayoutInflater
 import android.view.View
 import com.google.android.gms.maps.SupportMapFragment
 import androidx.appcompat.app.AppCompatActivity
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
@@ -18,9 +21,7 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.easywaste.app.Clases.*
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.PolylineOptions
-import kotlinx.android.synthetic.main.servicio_reciclador_aceptar.*
 import org.json.JSONObject
 import java.lang.Exception
 
@@ -36,11 +37,17 @@ class ServicioRecicladorOperacionFragment : Fragment() {
     var SERVICIOID:Int = 0
     var SERVICIO_DIRECCION:ClsServicioDireccion? = null
     var SERVICIO:ClsServicio? = null
+
+
+    companion object {
+        val TIEMPO_ACTUALIZAR_POSICION_RECICLADOR:Long = 1000*6
+    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Prefs.getInstance(activity!!)
         val acti = activity as AppCompatActivity
         loc = ClsLocalizacion(acti)
         val view = inflater.inflate(R.layout.servicio_reciclador_operaciones, container, false)
@@ -58,12 +65,10 @@ class ServicioRecicladorOperacionFragment : Fragment() {
         buscarServicioRecicladorEstado()
         return view
     }
-     fun agregarMarcadorProveedor(pos:LatLng){
-         loc!!.agregarMarcador( loc!!.markerProveedor(pos))
-     }
+
      fun dibujarRuta(origin:LatLng, dest:LatLng, txtTiempoEstimado:TextView?){
-        val url = getDirectionsUrl(origin, dest)
-        loc?.gmap!!.clear()
+        val url = urlMapsApi(origin, dest)
+         loc?.gmap!!.clear()
          loc?.agregarMarcador(loc!!.markerReciclador(origin))
          loc?.agregarMarcador(loc!!.markerProveedor(dest))
 
@@ -122,9 +127,17 @@ class ServicioRecicladorOperacionFragment : Fragment() {
 
         val requestQueue = Volley.newRequestQueue(context)
         requestQueue.add(request)
+
+         val locationManager: LocationManager? = activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+         try {
+             // Request location updates
+             locationManager?.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, TIEMPO_ACTUALIZAR_POSICION_RECICLADOR, 0f, locationListener)
+         } catch(ex: SecurityException) {
+
+         }
     }
 
-     fun getDirectionsUrl( origin:LatLng, dest:LatLng):String{
+    fun urlMapsApi(origin:LatLng, dest:LatLng):String{
 
         val str_origin = "origin="+origin.latitude+","+origin.longitude
 
@@ -209,4 +222,64 @@ class ServicioRecicladorOperacionFragment : Fragment() {
         requestQueue.add(request)
     }
 
+    private val locationListener: LocationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location) {
+            ClsLocalizacion.lastLatLong = LatLng(location.latitude, location.longitude)
+            loc?.markerReciclador?.position = ClsLocalizacion.lastLatLong
+            try {
+                actualizarPosicionReciclador()
+            }catch (ex:Exception){
+
+            }
+        }
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+        override fun onProviderEnabled(provider: String) {}
+        override fun onProviderDisabled(provider: String) {}
+    }
+
+    fun actualizarPosicionReciclador(){
+        var idservicio = 0
+        if(Prefs.pullServicioRecicladorId() !=0){
+            idservicio = Prefs.pullServicioRecicladorId()
+        }else{
+            idservicio = SERVICIOID
+        }
+        val params = HashMap<String,Any>()
+        params["servicio_id"] =  idservicio
+        params["latitud_actual"] =  ClsLocalizacion.lastLatLong!!.latitude
+        params["longitud_actual"] =  ClsLocalizacion.lastLatLong!!.longitude
+
+        val parameters = JSONObject(params as Map<String, Any>)
+
+        val request : JsonObjectRequest = object : JsonObjectRequest(
+            Method.POST, VAR.url("position_update"),parameters,
+            Response.Listener { response ->
+
+                if(response!=null){
+                    Toast.makeText(context,  response.getString("mensaje"), Toast.LENGTH_SHORT).show()
+                }
+
+            },
+            Response.ErrorListener{
+                try {
+                    val nr = it.networkResponse
+                    val r = String(nr.data)
+                    val response=  JSONObject(r)
+                    Toast.makeText(context,  response.getString("mensaje"), Toast.LENGTH_LONG).show()
+                }catch (ex: Exception){
+                    ex.printStackTrace()
+                    Toast.makeText(context,  "Error de conexión", Toast.LENGTH_LONG).show()
+                }
+
+            }) {
+            override fun getHeaders(): Map<String, String> {
+                var params: MutableMap<String, String> =HashMap()
+                params["TOKEN"] =  Prefs.pullToken()
+                return params
+            }
+        }
+
+        val requestQueue = Volley.newRequestQueue(context)
+        requestQueue.add(request)
+    }
 }

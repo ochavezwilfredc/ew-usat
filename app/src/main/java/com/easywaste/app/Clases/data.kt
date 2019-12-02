@@ -85,7 +85,7 @@ class Validar {
 class VAR {
     companion object {
        // val url: String = "http://192.168.18.57/www/muni_api/webservice/"
-        val url: String = "http://192.168.18.137/www/muni_api/webservice/"
+        val url: String = "http://192.168.1.110/www/muni_api/webservice/"
         var ext: String = ".php"
         fun url(m: String): String {
             return url + m + ext

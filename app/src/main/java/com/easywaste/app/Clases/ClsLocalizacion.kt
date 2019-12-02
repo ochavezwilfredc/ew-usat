@@ -40,7 +40,10 @@ class ClsLocalizacion : OnMapReadyCallback, ActivityCompat.OnRequestPermissionsR
     var activity:AppCompatActivity? = null
      var defaultClick:Boolean = true
      var markers = ArrayList<Marker>()
-     constructor(activity: AppCompatActivity?) {
+
+    var markerProveedor:Marker?=null
+    var markerReciclador:Marker?=null
+    constructor(activity: AppCompatActivity?) {
          this.activity = activity
             activarLocalizacion()
          val locationManager:LocationManager? = activity?.getSystemService(LOCATION_SERVICE) as LocationManager?
@@ -89,7 +92,7 @@ class ClsLocalizacion : OnMapReadyCallback, ActivityCompat.OnRequestPermissionsR
 
     private val locationListener: LocationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
-            ClsLocalizacion.lastLatLong = LatLng(location.latitude, location.longitude)
+          //  ClsLocalizacion.lastLatLong = LatLng(location.latitude, location.longitude)
         }
         override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
         override fun onProviderEnabled(provider: String) {}
@@ -131,14 +134,16 @@ class ClsLocalizacion : OnMapReadyCallback, ActivityCompat.OnRequestPermissionsR
         }
     }
      fun markerProveedor(coor:LatLng):Marker{
-         return  gmap!!.addMarker(MarkerOptions()
+         markerProveedor =  gmap!!.addMarker(MarkerOptions()
                  .position(coor)
                  .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
+         return markerProveedor!!
      }
      fun markerReciclador(coor:LatLng):Marker{
-         return  gmap!!.addMarker(MarkerOptions()
+         markerReciclador =  gmap!!.addMarker(MarkerOptions()
                  .position(coor)
                  .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)))
+         return markerReciclador!!
      }
 
     fun activarLocalizacion(){

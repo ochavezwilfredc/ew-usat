@@ -107,7 +107,7 @@ class ServicioProveedorReferenciaDialog: DialogFragment() {
                         val id = datos.getInt("id")
                         Prefs.putServicioId(id)
                         activity.cambiarFragment(ServicioProveedorEspereFragment())
-                        dialog.dismiss()
+                        dialog!!.dismiss()
                     }else{
                         AlertaMensaje.mostrarError(activity!!,response.getString("mensaje"))
                     }
@@ -123,10 +123,11 @@ class ServicioProveedorReferenciaDialog: DialogFragment() {
                     val response=  JSONObject(r)
                     Toast.makeText(context,  response.getString("mensaje"), Toast.LENGTH_LONG).show()
                 }catch (ex: Exception){
+                    Log.e("registro",ex.message)
                     Toast.makeText(context,  "Error de conexión", Toast.LENGTH_LONG).show()
                 }
                 btnOperacion?.isEnabled = true
-                dialog.dismiss()
+                dialog!!.dismiss()
 
             }) {
             override fun getHeaders(): Map<String, String> {
@@ -151,30 +152,9 @@ class ServicioProveedorReferenciaDialog: DialogFragment() {
 
 
 
-   override fun onDismiss(dialog: DialogInterface?) {
-       if(fragmentManager!=null){
-           val frag = fragmentManager!!.beginTransaction()
-           val mapfrag = fragmentManager?.findFragmentByTag("map")
-           if(mapfrag!=null){
-               frag.remove(mapfrag)
-               frag.commit()
-           }
-       }
-
-       if(cerroDialog==0 && targetFragment!=null){
-           targetFragment?.onActivityResult(targetRequestCode,0,null)
-       }
-
-       super.onDismiss(dialog)
-   }
-
-   override fun onDestroy() {
-       super.onDestroy()
-   }
-
    override fun onResume() {
        super.onResume()
-       val window = dialog.window
+       val window = dialog?.window
        val size : Point = Point()
 
        window!!.windowManager.defaultDisplay.getSize(size)

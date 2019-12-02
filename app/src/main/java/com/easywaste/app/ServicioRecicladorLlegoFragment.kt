@@ -35,11 +35,11 @@ class ServicioRecicladorLlegoFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         val acti = activity as AppCompatActivity
         parent = parentFragment as ServicioRecicladorOperacionFragment
         val view = inflater.inflate(R.layout.servicio_reciclador_llego, container, false)
         parent!!.cardViewInfo?.visibility = View.VISIBLE
-
         val txtDireccion:TextView = view.findViewById(R.id.direccion)
         val contenedorLlego:LinearLayout = view.findViewById(R.id.contenedorLlego)
         contenedorLlego.visibility = View.GONE
@@ -77,7 +77,6 @@ class ServicioRecicladorLlegoFragment : Fragment() {
                     if(response!=null){
                         if(response.getInt("estado") == 200 ){
                             contenedorLlego.visibility = View.VISIBLE
-                            Prefs.putInt("SERVICIORECICLADOR_LLEGO",1)
                             val time = Calendar.getInstance().timeInMillis.toString()
                             Prefs.putString("SERVICIORECICLADOR_FECHA", time)
                             btnLlego.visibility = View.GONE
@@ -166,7 +165,7 @@ class ServicioRecicladorLlegoFragment : Fragment() {
     fun mostrarBtnEspere( contenedorLLego:LinearLayout, btnLLego:Button, btnAusente:Button){
         if(Prefs.pullString("SERVICIORECICLADOR_FECHA")=="0") {
             contenedorLLego.visibility = View.GONE
-            btnLLego.visibility = View.GONE
+            btnLLego.visibility = View.VISIBLE
             OK = false
         }else if(Prefs.pullString("SERVICIORECICLADOR_FECHA")!=""){
             btnLLego.visibility = View.GONE
@@ -195,6 +194,7 @@ class ServicioRecicladorLlegoFragment : Fragment() {
                 if(response!=null){
                     if(response.getInt("estado") == 200 ){
                         Prefs.putServicioRecicladorId(0)
+
                         AlertaMensaje.mostrarSuccess(activity!!,response.getString("mensaje"))
                         val frag = ServicioRecicladorSolicitudesFragment()
                         mainActivity.cambiarFragment(frag)
@@ -224,6 +224,10 @@ class ServicioRecicladorLlegoFragment : Fragment() {
 
         val requestQueue = Volley.newRequestQueue(context)
         requestQueue.add(request)
+    }
+
+    fun proveedorPintrash(){
+
     }
 
     fun cancelarServicio(){

@@ -1,6 +1,8 @@
 package com.easywaste.app
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +25,7 @@ import java.lang.Exception
 
 class ServicioRecicladorSolicitudesFragment : Fragment() {
 
+    var OK:Boolean = true
 
     class ServicioViewHolder(inflater: LayoutInflater, parent: ViewGroup) :
             RecyclerView.ViewHolder(inflater.inflate(R.layout.item_serviciolista, parent, false)) {
@@ -84,6 +87,23 @@ class ServicioRecicladorSolicitudesFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerView)
         listaServicios.clear()
         listarServicios()
+
+
+        val mainHandler = Handler(Looper.getMainLooper())
+        mainHandler.post(object : Runnable {
+            override fun run() {
+                if(OK){
+                    try {
+                        listarServicios()
+                        mainHandler.postDelayed(this, 4000)
+                    }catch (ex:Exception){
+
+                    }
+                }
+
+            }
+        })
+        listarServicios()
         return view
     }
 
@@ -94,9 +114,12 @@ class ServicioRecicladorSolicitudesFragment : Fragment() {
             layoutManager = LinearLayoutManager(activity)
             adapter = ServicioListAdapter(activity!!,listaServicios)
         }
+
+
     }
 
     fun listarServicios(){
+
         val activity = activity as MainActivity?
         Toast.makeText(context,  "Espere ...", Toast.LENGTH_LONG).show()
         val params = HashMap<String, Any>()

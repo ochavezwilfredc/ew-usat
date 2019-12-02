@@ -44,7 +44,7 @@ class ServicioProveedorRegistrarFragment : Fragment() {
             val frag = ServicioProveedorReferenciaDialog()
             frag.arguments = bs
             frag.setTargetFragment(this, FRAGMENTO_AGREGAR)
-            frag.show(fragmentManager, "dialogfrag")
+            frag.show(fragmentManager!!, "dialogfrag")
         }
         return view
     }

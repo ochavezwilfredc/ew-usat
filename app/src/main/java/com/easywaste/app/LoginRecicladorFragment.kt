@@ -78,7 +78,7 @@ class LoginRecicladorFragment : Fragment(){
         }
         btnAyuda.setOnClickListener {
             val frag = RecicladorCodigoDialog()
-            frag.show(fragmentManager,"dialogfrag")
+            frag.show(fragmentManager!!,"dialogfrag")
         }
 
         return v
