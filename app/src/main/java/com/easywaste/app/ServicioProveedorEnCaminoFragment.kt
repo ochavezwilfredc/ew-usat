@@ -188,7 +188,6 @@ class ServicioProveedorEnCaminoFragment : Fragment() {
                         val longitud = datos.getDouble("lon_actual")
                         if(posicionReciclador==null && posicionProveedor!=null){
                             posicionReciclador = LatLng(latitud,longitud)
-
                             loc!!.gmap?.clear()
                             val markerproveedor = loc!!.markerProveedor(posicionProveedor!!)
                             loc!!.agregarMarcador(markerproveedor)

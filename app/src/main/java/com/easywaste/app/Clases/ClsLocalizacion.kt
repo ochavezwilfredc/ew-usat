@@ -41,6 +41,7 @@ class ClsLocalizacion : OnMapReadyCallback, ActivityCompat.OnRequestPermissionsR
      var defaultClick:Boolean = true
      var markers = ArrayList<Marker>()
 
+    var clickMarker:Boolean = false
     var markerProveedor:Marker?=null
     var markerReciclador:Marker?=null
     constructor(activity: AppCompatActivity?) {
@@ -65,8 +66,13 @@ class ClsLocalizacion : OnMapReadyCallback, ActivityCompat.OnRequestPermissionsR
         gmap?.setMapType(GoogleMap.MAP_TYPE_NORMAL)
         gmap?.clear()
          habilitarLocalizacion()
-         gmap?.setOnMarkerClickListener { marker ->
-             true
+         gmap?.setOnMapClickListener {
+             if(clickMarker){
+                 gmap!!.clear()
+                 lastLatLong = it
+                 markerProveedor(lastLatLong!!)
+             }
+
          }
 
          if(lastLatLong!=null){
@@ -76,6 +82,8 @@ class ClsLocalizacion : OnMapReadyCallback, ActivityCompat.OnRequestPermissionsR
                  CameraUpdateFactory.newLatLngZoom(lastLatLong, DEFAULT_ZOOM))
 
          }
+
+
      }
 
      fun agregarMarcador( marker:Marker){

@@ -30,6 +30,7 @@ class ServicioProveedorRegistrarFragment : Fragment() {
         val acti = activity as AppCompatActivity
 
         loc = ClsLocalizacion(acti)
+        loc!!.clickMarker = true
         val mapFragment: SupportMapFragment = childFragmentManager.findFragmentById(R.id.frg) as SupportMapFragment
         mapFragment.getMapAsync(loc)
         val btnSolicitarServicio: Button = view.findViewById(R.id.btnSolicitarServicio)
